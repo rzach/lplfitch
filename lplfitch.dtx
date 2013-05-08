@@ -1,0 +1,792 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2013 by Dave Barker-Plummer, John Etchemendy,
+% and Richard Zach
+% -------------------------------------------------------
+% 
+% This file may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.2
+% of this license or (at your option) any later version.
+% The latest version of this license is in:
+%
+%    http://www.latex-project.org/lppl.txt
+%
+% and version 1.2 or later is part of all distributions of LaTeX 
+% version 1999/12/01 or later.
+%
+% \fi
+%
+% \iffalse
+%<*driver>
+\ProvidesFile{lplfitch.dtx}
+%</driver>
+%<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
+%<package>\ProvidesPackage{lplfitch}
+%<*package>
+    [2013/05/07 v1.0 LPL Fitch style]
+%</package>
+%
+%<*driver>
+\documentclass{ltxdoc}
+\usepackage{lplfitch}[2013/05/07]
+\EnableCrossrefs         
+\CodelineIndex
+\RecordChanges
+\begin{document}
+  \DocInput{lplfitch.dtx}
+  \PrintChanges
+  \PrintIndex
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{0}
+%
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+%
+% \changes{v0.1}{Aeons ago}{Initial version}
+% \changes{v1.0}{2012/05/07}{First public, documented version}
+%
+% \GetFileInfo{lplfitch.dtx}
+%
+% \DoNotIndex{\newcommand,\newenvironment}
+% 
+%
+% \title{The \textsf{lplfitch} package\thanks{This document
+%   corresponds to \textsf{lplproof}~\fileversion, dated \filedate.}}
+% \author{John Etchemendy \and Dave Barker-Plummer \and Richard Zach}
+%
+% \maketitle
+%
+% \section{Introduction}
+%
+% The package |lplfitch| provides macros for typesetting natural
+% deduction proofs in ``Fitch'' style, with subproofs indented and
+% offset by scope lines.  It produces proofs in the format used in the
+% textbook \textit{Languege, Proof, and Logic} by Jon Barwise and John
+% Etchemendy.  The package was originally written by John Etchemendy, and 
+% incorporates changes by Dave Barker-Plummer and Richard Zach.
+%
+%\section{Fitch Proofs by Example}
+%\label{sect:proofs-by-example}
+%
+%In this section we will describe how to typeset the Fitch-style
+%natural deduction proof shown in figure~\ref{fig:example-proof}.  This
+%proof uses all of the macros that we have developed for typesetting
+%proofs and therefore serves as a good illustration.
+%
+%\begin{figure}
+%\fitchprf
+%  {}
+%  {
+%   \subproof{\nline[1.]{\uni{x}{(Cube(x)\lif Small(x))}}}
+%            {
+%             \subproof{\nline[2.]{\exi{x}{Cube(x)}}}
+%                      {
+%                       \boxedsubproof[3.]{a}{Cube(a)}
+%                        {
+%                         \jline[\lalle{1}]{[4.]{Cube(a)\lif Small(a)}}\\
+%                         \jline[\life{4}{3}]{[5.]{Small(a)}}\\
+%                         \jline[\lexii{5}]{[6.]{\exi{x}{Small(x)}}}
+%                        }
+%                        \jline[\lexie{2}{3--6}]{[7.]{\exi{x}{Small(x)}}}
+%                      }
+%                    \jline[\lifi{2--7}]{[8.]{\exi{x}{Cube(x)}\lif
+%					\exi{x}{Small(x)}}}
+%                   }
+%             \jline[\lifi{1--8}]{[9.]{\brokenform{(\uni{x}{(Cube(x)\lif
+%Small(x))}\lif}{\formula{(\exi{x}{Cube(x)}\lif\exi{x}{Small(x)})}}}} 
+%  }
+%\caption{An Example Proof}
+%\label{fig:example-proof}
+%\end{figure}
+%
+%
+%The commands for producing this proof are given
+%in figure~\ref{fig:proof-eg-cmds}.  This proof is a little hard to take
+%in all at once, and so in the remainder of this section we will describe
+%the development of this proof, which we hope is of use to readers.
+%
+%\begin{figure}
+%\begin{verbatim}
+%\fitchprf
+%  {}
+%  {
+%   \subproof{\nline[1.]{\uni{x}{(Cube(x)\lif Small(x))}}}
+%            {
+%             \subproof{\nline[2.]{\exi{x}{Cube(x)}}}
+%                      {
+%                       \boxedsubproof[3.]{a}{Cube(a)}
+%                        {
+%                         \jline[\lalle{1}]{[4.]{Cube(a)\lif Small(a)}}\\
+%                         \jline[\life{4}{3}]{[5.]{Small(a)}}\\
+%                         \jline[\lexii{5}]{[6.]{\exi{x}{Small(x)}}}
+%                        }
+%                        \jline[\lexie{2}{3--6}]{[7.]{\exi{x}{Small(x)}}}
+%                      }
+%                    \jline[\lifi{2--7}]{[8.]{\exi{x}{Cube(x)}\lif
+%                                                 \exi{x}{Small(x)}}}
+%                   }
+%             \jline[\lifi{1--8}]{[9.]{\brokenform{(\uni{x}{(Cube(x)\lif
+%Small(x))}\lif}{\formula{(\exi{x}{Cube(x)}\lif\exi{x}{Small(x)})}}}} 
+%  }
+%\end{verbatim}
+%\caption{The commands for producing the proof of
+%figure~\ref{fig:example-proof}}
+%\label{fig:proof-eg-cmds}
+%\end{figure}
+%
+%We recommend developing the commands to typeset a proof from the inside
+%out, starting with the most deeply nested subproof.  We also recommend
+%ignoring justifications until the proof is complete, primarily for
+%simplicity but also because the line numbers are not known until the
+%complete proof structure is present.
+%
+%We begin by writing the lines of the innermost subproof (lines 3-6 of the
+%main proof).
+%
+%\begin{quote}
+%\begin{tabular}{ll}
+%\verb+\nline{Cube(a)}+ & \formula{Cube(a)}\\
+%\verb+\nline{Cube(a)\lif Small(a)}+ & \formula{Cube(a)\lif Small(a)}\\
+%\verb+\nline{Small(a)}+ & \formula{Small(a)}\\
+%\verb+\nline{\exi{x}{Small(x)}}+ & \formula{\exi{x}{Small(x)}}
+%\end{tabular}
+%\end{quote}
+%
+%The macro \verb+\nline+ produces a single line of the proof.  The mandatory 
+%argument to \verb+\nline+ is the formula to appear within the step.  You will notice
+%that we have used the macro \verb+\lif+ to produce an implication arrow,
+%and \verb+\exi+ to produce an existentially quantified formula.  These
+%are members of a suite of macros that we find convenient for producing
+%formulae.  These are described in section~\ref{sect:formulae}. 
+%
+%The \verb+\nline+ macro may only be used inside a proof context.  We construct such a
+%context by using the \verb+\fitchprf+ macro.  This macro has two mandatory
+%arguments, corresponding to the premises and the body of the proof.  Each argument
+%is a list of lines, separated by the \verb+\\+ command.  We therefore embed the
+%lines of our example proof like this:
+%
+%\begin{verbatim}
+%\fitchprf{\nline{Cube(a)}}
+%         {
+%          \nline{Cube(a)\lif Small(a)}\\
+%          \nline{Small(a)}\\
+%          \nline{\exi{x}{Small(x)}}
+%         }
+%\end{verbatim}
+%
+%\noindent typesetting a document containing this command results in the proof:
+%\begin{quote}
+%\fitchprf{\nline{Cube(a)}}
+%         {
+%          \nline{Cube(a)\lif Small(a)}\\
+%          \nline{Small(a)}\\
+%          \nline{\exi{x}{Small(x)}}
+%         }
+%\end{quote}
+%
+%Our next step is to embed this proof as a subproof within the larger proof.  This is
+%simply achieved.  We first change the use of \verb+\fitchprf+ to a
+%\verb+\subproof+ command, and then treat this as a line of the body of another
+%\verb+\fitchprf+ command.  The result of doing this is:
+%
+%\begin{verbatim}
+%\fitchprf{\nline{\exi{x}{Cube(x)}}}
+%         {
+%          \subproof{\nline{Cube(a)}}
+%                   {
+%                    \nline{Cube(a)\lif Small(a)}\\
+%                    \nline{Small(a)}\\
+%                    \nline{\exi{x}{Small(x)}}
+%                   }
+%          \nline{\exi{x}{Small(x)}}
+%         }
+%\end{verbatim}
+%
+%\noindent which yields the proof:
+%
+%\begin{quote}
+%\fitchprf{\nline{\exi{x}{Cube(x)}}}
+%         {
+%          \subproof{\nline{Cube(a)}}
+%                   {
+%                    \nline{Cube(a)\lif Small(a)}\\
+%                    \nline{Small(a)}\\
+%                    \nline{\exi{x}{Small(x)}}
+%                   }
+%          \nline{\exi{x}{Small(x)}}
+%         }
+%\end{quote}
+%
+%\noindent The new outer \verb+\fitchprf+ has two elements in the second
+%argument, one of which is the subproof that we just wrote and the second is a
+%formula.  As we embedded the subproof in the body of the main proof we
+%changed the command from \verb+\fitchprf+ to \verb+\subproof+, the definitions of
+%these two macros are almost identical but for the adjustment of vertical spacing
+%after the use of a \verb+\subproof+ command.  Note that no \verb+\\+ command is
+%required after the use of a \verb+\subproof+ command.
+%
+%Two further applications of this technique give us the command:
+%
+%\begin{verbatim}
+%\fitchprf{}
+%         {
+%          \subproof{\nline{\uni{x}{(Cube(x)\lif Small(x))}}}
+%                   {
+%                    \subproof{\nline{\exi{x}{Cube(x)}}}
+%                             {
+%                              \subproof{\nline{Cube(a)}}
+%                                       {
+%                                        \nline{Cube(a)\lif Small(a)}\\
+%                                        \nline{Small(a)}\\
+%                                        \nline{\exi{x}{Small(x)}}
+%                                       }
+%                              \nline{\exi{x}{Small(x)}}
+%                             }
+%                    \nline{\exi{x}{Cube(x)\lif\exi{x}{Small(x)}}}
+%                   }
+%                   \nline{\brokenform{(\uni{x}{(Cube(x)\lif Small(x))}\lif}
+%                              {\formula{(\exi{x}{Cube(x)}\lif
+%                                                  \exi{x}{Small(x)})}}}
+%         }
+%\end{verbatim}
+%
+%\noindent which produces the proof
+%
+%\begin{quote}
+%\fitchprf{}
+%         {
+%          \subproof{\nline{\uni{x}{(Cube(x)\lif Small(x))}}}
+%                   {
+%                    \subproof{\nline{\exi{x}{Cube(x)}}}
+%                             {
+%                              \subproof{\nline{Cube(a)}}
+%                                       {
+%                                        \nline{Cube(a)\lif Small(a)}\\
+%                                        \nline{Small(a)}\\
+%                                        \nline{\exi{x}{Small(x)}}
+%                                       }
+%                              \nline{\exi{x}{Small(x)}}
+%                             }
+%                    \nline{\exi{x}{Cube(x)\lif\exi{x}{Small(x)}}}
+%                   }
+%          \nline{\brokenform{(\uni{x}{(Cube(x)\lif
+%Small(x))}\lif}{\formula{(\exi{x}{Cube(x)}\lif\exi{x}{Small(x)})}}}
+%         }
+%\end{quote}
+%
+%Notice that the last line contains a long formula, and I have used the
+%\verb+\brokenform+ command to typeset this formula.  The \verb+\brokenform+ command
+%takes two arguments, the first is the first part of the formula, which will be
+%typeset left justified in the space available, while the second argument contains
+%the remaining pieces of the formula which will appear in subsequent lines.  These
+%lines should be separated by uses of the \verb+\\+ command, and each line should
+%(usually) be a \verb+\formula+.  These lines will be typeset right justified in the
+%available space.
+%
+%\subsection{Adding line numbers}
+%
+%The \verb+\nline+ command takes an optional argument which is the number of the line
+%within the proof (\verb+\nline+ stands for {\em numbered line}).  We can simply add
+%these now that we have all of the lines of the proof.
+%
+%\begin{verbatim}
+%\fitchprf{}
+%         {
+%          \subproof{[1.]\nline{\uni{x}{(Cube(x)\lif Small(x))}}}
+%                   {
+%                    \subproof{\nline[2.]{\exi{x}{Cube(x)}}}
+%                             {
+%                              \subproof{\nline[3.]{Cube(a)}}
+%                                       {
+%                                        \nline[4.]{Cube(a)\lif Small(a)}\\
+%                                        \nline[5.]{Small(a)}\\
+%                                        \nline[6.]{\exi{x}{Small(x)}}
+%                                       }
+%                              \nline[7.]{\exi{x}{Small(x)}}
+%                             }
+%                    \nline[8.]{\exi{x}{Cube(x)\lif\exi{x}{Small(x)}}}
+%                   }
+%          \nline[9.]{\brokenform{(\uni{x}{(Cube(x)\lif
+%Small(x))}\lif}{\formula{(\exi{x}{Cube(x)}\lif\exi{x}{Small(x)})}}}
+%         }
+%\end{verbatim}
+%\noindent which results in the proof:
+%\begin{quote}
+%\fitchprf{}
+%         {
+%          \subproof{\nline[1.]{\uni{x}{(Cube(x)\lif Small(x))}}}
+%                   {
+%                    \subproof{\nline[2.]{\exi{x}{Cube(x)}}}
+%                             {
+%                              \subproof{\nline[3.]{Cube(a)}}
+%                                       {
+%                                        \nline[4.]{Cube(a)\lif Small(a)}\\
+%                                        \nline[5.]{Small(a)}\\
+%                                        \nline[6.]{\exi{x}{Small(x)}}
+%                                       }
+%                              \nline[7.]{\exi{x}{Small(x)}}
+%                             }
+%                    \nline[8.]{\exi{x}{Cube(x)\lif\exi{x}{Small(x)}}}
+%                   }
+%          \nline[9.]{\brokenform{(\uni{x}{(Cube(x)\lif
+%Small(x))}\lif}{\formula{(\exi{x}{Cube(x)}\lif\exi{x}{Small(x)})}}}
+%         }
+%\end{quote}
+%
+%In the eventual proof, a boxed constant is introduced at line 3.  We can convert
+%the simple subproof into a boxed subproof.  We use the \verb+\boxedsubproof+
+%macro to achieve this.  The conversion is straightforward, we replace the
+%first argument of the \verb+\subproof+ command which was
+%\verb+{\nline[3.]{Cube(a)}}}+ by the three arguments \verb+[3.]{a}{Cube(a)}+
+%obtaining
+%
+%\begin{verbatim}
+%\boxedsubproof[3.]{a}{Cube(a)}
+%         {
+%          \nline[4.]{Cube(a)\lif Small(a)}\\
+%          \nline[5.]{Small(a)}\\
+%          \nline[6.]{\exi{x}{Small(x)}}
+%         }
+%\end{verbatim}
+%
+%\subsection{Adding Justifications}
+%
+%The final thing that we need to do to complete the desired proof is the addition of
+%justifications.  A justified line is produced using the \verb+\jline+ macro, which
+%has one mandatory and one optional argument.  The optional argument contains the
+%justification, while the mandatory argument must contain {\em all} of the arguments
+%previously given to \verb+\nline+.  So the command 
+%\begin{quote}
+%\verb+\nline[5.]{Small(a)}+
+%\end{quote} 
+%\noindent produces exactly the same output as
+%\begin{quote}
+%\verb+\jline{[5.]{Small(a)}}+
+%\end{quote}\noindent but notice that both the arguments to \verb+\nline+ are passed
+%within the single argument to \verb+\jline+.
+%
+%To produce a justified line we need to then add the optional justification argument.
+%
+%\begin{verbatim}
+%\jline[\ife{4,3}]{[5.]{Small(a)}}
+%\end{verbatim}
+%
+%\noindent The \verb+\ife+ macro produces a justification using the
+%$\lif$-elimination rule of the logic.  This is one of a suite of
+%macros that we developed to produce justifications in a uniform
+%manner.  These are described in section~\ref{sect:justifications}.
+% 
+%As an alternative, the |\pline| command can be used to typeset proof
+%lines. It takes the formula as a mandatory argument, and line number
+%and justification as optional arguments: |\pline|\oarg{line
+%number}\marg{formula}\oarg{justification}.  The ariant |\fpline|
+%works the same, except it produces a focus slider.
+%
+%\section{Logical Formulae}
+%\label{sect:formulae}
+%
+%We set our formulae using sans serif font and we also need to be in math mode
+%because the use of logical connectives.  The \verb+\formula+ command takes
+%a formula to set as its argument, and handles both font and mode
+%change.
+%
+%Many of the commands that follow require that they are used in a
+%formula, or math, context.
+%
+%\subsection{Connectives}
+%
+%We introduce our own (usually) shorter names for logical connectives.  All of these
+%commands require a formula context.
+%
+%\begin{center}
+%\begin{tabular}{lc}
+%\bf Usage & \bf Output\\
+%\hline\\
+%\verb+\land+ & \formula{\land}\\
+%\verb+\lor+ & \formula{\lor}\\
+%\verb+\lif+ & \formula{\lif}\\
+%\verb+\liff+ & \formula{\liff}\\
+%\verb+\lnot+ & \formula{\lnot}\\
+%\verb+\lfalse+ & \formula{\lfalse}\\
+%\verb+\lall+ & \formula{\lall}\\
+%\verb+\lis+ & \formula{\lis}
+%\end{tabular}
+%\end{center}
+%
+%\subsection{Quantified formulae}
+%
+%So that we don't have to think about spacing when setting quantified
+%formulae, we defined the following commands.
+%
+%\begin{verbatim}
+%\newcommand{\quant}[3]{#1 #2\;#3}
+%\newcommand{\exi}[2]{\quant{\lis}{#1}{#2}}
+%\newcommand{\uni}[2]{\quant{\lall}{#1}{#2}}
+%\end{verbatim}
+%The first, \verb+\quant+ is a helper macro, but you might like to use
+%\verb+\exi{x}{P(x)}+ to obtain \formula{\exi{x}{P(x)}}, and
+%\verb+\uni{x}{\exi{y}{(P(x)\lif Q(x,y))}}+ for
+%\formula{\uni{x}{\exi{y}{(P(x)\lif Q(x,y))}}}, for example.  \verb+\exi+ and
+%\verb+\uni+ require a formula context.
+%
+%\section{Justifications}
+%\label{sect:justifications}
+%
+%Here are the macros that we have developed to typeset justifications within a proof.
+%These do not require a
+%formula context.
+%
+%\begin{center}
+%\begin{tabular}{ll}
+%\bf Usage & \bf Output\\
+%\hline\\
+%|\landi{2, 3}| &\landi{2, 3}\\
+%\verb+\lande{4}+&\lande{4}\\
+%\verb+\lori{5}+ & \lori{5}\\
+%\verb+\lore{6}{7--9}{11--13}+ &\lore{6}{7--9}{11--13}\\
+%\verb+\lnoti{14--15}+ &\lnoti{14-15}\\
+%\verb+\lnote{16}+ &\lnote{16}\\
+%\verb+\lfalsei{17}{19}+ &\lfalsei{17}{19}\\
+%\verb+\lfalsee{20}+&\lfalsee{20}\\
+%\verb+\lifi{21--25}+ &\lifi{21--25}\\
+%\verb+\life{27}{30}+ &\life{27}{30}\\
+%\verb+\liffi{33--37}{40-50}+&\liffi{33--37}{40--50}\\
+%\verb+\liffe{55}{57}+ &\liffe{55}{57}\\
+%\verb+\reit{4}+&\reit{4}\\
+%\verb+\eqi+ &\eqi\\
+%\verb+\eqe{7}{11}+&\eqe{7}{11}\\
+%\verb+\lalli{9--12}+&\lalli{9--12}\\
+%\verb+\lalle{13}+&\lalle{13}\\
+%\verb+\lexii{15}+ &\lexii{15}\\
+%\verb+\lexie{17}{18-30}+ &\lexie{17}{18--30}\\
+%\end{tabular}
+%\end{center}
+%
+%\section{Other Macros}
+%\label{sect:other-macros}
+%
+%\subsection{Arguments}
+%
+%When you want to typeset an argument, for example when setting an exercise requiring
+%the proof of some conclusion from a collection of premises, you should use the
+%\verb+\fitcharg+ command.  This command takes two arguments, both mandatory, the
+%premise lines which are set above the Fitch bar, and the conclusion lines, which go
+%below.  Here's an example.  The argument
+%
+%\begin{quote}
+%\fitcharg{\formula{P(a)}\\ \formula{Q(a)}}{\formula{S(a)}}
+%\end{quote}
+%
+%\noindent is typeset by the command:
+%\begin{verbatim}
+%\fitcharg{
+%          \formula{P(a)}\\ 
+%          \formula{Q(a)}
+%         }
+%         {\formula{S(a)}}
+%\end{verbatim}
+%\noindent Notice that multiple lines are separated by a use of the \LaTeX\ command
+%\verb+\\+.
+%
+%\subsection{Fitch Contexts}
+%
+%The \verb+\fitchctx+ command is used for setting proof fragments which do not
+%include the horizontal Fitch bar.  We use these, for example, when formally
+%describing the inference rules of our logic.  The command below, for example,
+%typesets our description of the rule of conditional proof.
+%
+%Notice here that we use the command \verb+\ellipsesline+ to produce a line of the
+%``proof'' containing a vertical ellipses (using the \verb+\nline{\vdots}+ command,
+%which is the obvious solution, results in the ellipses not being centered on the
+%line).
+%
+%Another new feature of this situation is the use of the \verb+\fline+ command. 
+%This command takes a single, mandatory, arguments which consists of all of the
+%arguments to a \verb+\jline+ command.  It produces exactly what the \verb+\jline+
+%command would, except that a focus slider appears to the left of the Fitch bar in
+%question.  The \verb+\fline+ does not work in the argument lines of \verb+\fitchprf+
+%or \verb+\fitcharg+.
+%
+%\begin{verbatim}
+%\fitchctx{
+%     \subproof{\nline[$n$.]{P}}
+%              {\ellipsesline\\
+%               \nline[$m$.]{Q}
+%              }
+%     \fline{[\lifi{$n-m$}]{{P\lif Q}}}
+%}
+%\end{verbatim}
+%
+%\begin{quote}
+%\fitchctx{
+%     \subproof{\nline[$n$.]{P}}
+%              {\ellipsesline\\
+%               \nline[$m$.]{Q}
+%              }
+%     \fline{[\lifi{$n-m$}]{{P\lif Q}}}
+%}
+%\end{quote}
+%
+%
+%
+% \StopEventually{}
+%
+% \section{Implementation}
+%
+%    \begin{macrocode}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{lplfitch}[2013/05/07 -- Fitch Proofs a la LPL]
+%    \end{macrocode}
+%
+% \begin{macro}{\formula}
+% Typesets a formula (in math mode, letters typeset in sans-serif as in LPL
+%    \begin{macrocode}
+\providecommand{\formula}[1]{\ensuremath{\sf{#1}}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Connectives and Quantifiers}
+% We provide convenient and short commands for logcal symbols.
+% These first three are appropriately defined in LaTeX2e, and 
+% therefore do nothing except remind people that they are there.
+%    \begin{macrocode}
+\providecommand\land{\wedge}
+\providecommand\lor{\vee}
+\providecommand\lnot{\neg}
+\providecommand\lif{\rightarrow}
+\providecommand\liff{\leftrightarrow}
+\providecommand\lfalse{\bot}
+\providecommand\lall{\forall}
+\providecommand\lis{\exists}
+%    \end{macrocode}
+% The following provide commands for ommands for setting quantified formulae, inserting correct space
+% between variable and formula.
+%    \begin{macrocode}
+\providecommand{\quant}[3]{#1 #2\;#3}
+\providecommand{\exi}[2]{\quant{\lis}{#1}{#2}}
+\providecommand{\uni}[2]{\quant{\lall}{#1}{#2}}
+%    \end{macrocode}
+% \subsection{Justifications}
+%
+% The folowing commands are used to generate justifications, e.g., |\landi{1, 2}|
+% produces ``\landi{1, 2}''.
+%    \begin{macrocode}
+\providecommand\intro[1]{\formula{#1\,}{\bf Intro:}}
+\providecommand\elim[1]{\formula{#1\,}{\bf Elim:}}
+
+\providecommand\landi[1]{\intro{\land} #1}
+\providecommand\lande[1]{\elim{\land} #1}
+\providecommand\lori[1]{\intro{\lor} #1}
+\providecommand\lore[3]{\elim{\lor} #1, #2, #3}
+\providecommand\lnoti[1]{\intro{\lnot} #1} 
+\providecommand\lnote[1]{\elim{\lnot} #1}
+
+\providecommand\lfalsei[2]{\intro{\lfalse} #1, #2}
+\providecommand\lfalsee[1]{\elim{\lfalse} #1}
+
+\providecommand\lifi[1]{\intro{\lif} #1}
+\providecommand\life[2]{\elim{\lif} #1, #2}
+
+\providecommand\liffi[2]{\intro{\liff} #1, #2}
+\providecommand\liffe[2]{\elim{\liff} #1, #2}
+
+\providecommand\reit[1]{{\bf Reit:} #1}
+
+\providecommand\eqi{\intro{=}}
+\providecommand\eqe[2]{\elim{=} #1, #2}
+
+\providecommand\lalli[1]{\intro{\lall} #1}
+\providecommand\lalle[1]{\elim{\lall} #1}
+
+\providecommand\lexii[1]{\intro{\lis} #1}
+\providecommand\lexie[2]{\elim{\lis} #1, #2}
+%    \end{macrocode}
+%
+% \subsection{Dimensions}
+%
+% The following dimensions can be redefined with |\setlength|
+%
+% \begin{macro}{\fitchargone}
+% Width of formula in arguments 
+%    \begin{macrocode}
+\newdimen\fitchargone   \fitchargone 3.5in
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\fitchone}
+% Width of formulas in proofs
+%    \begin{macrocode}
+\newdimen\fitchone   \fitchone 3.0in
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\fitchtwo}
+% Distance between scope line and formula
+%    \begin{macrocode}
+\newdimen\fitchtwo   \fitchtwo 10pt
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{fitchthree}
+% distance between scope line and formula  ; RZ
+%    \begin{macrocode}
+\newdimen\fitchthree \fitchthree=\fitchtwo
+\advance\fitchthree by 0pt
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Contexts, Arguments, Proofs}
+%
+% \begin{macro}{\fitchctx} Typesets fitch context, e.g., specification of 
+% a rule, in which a focus slider is typeset to the left of the conclusion 
+%    \begin{macrocode} 
+\providecommand{\fitchctx}[1]{\advance \fitchone by -\fitchthree%
+\advance \fitchone by .5pt
+\begin{tabular}[t]{r@{}|p{\fitchone}@{}l}
+ \phantom{\slider}  \\[-1.75ex]
+ #1 \\[-1.75ex] & & 
+ \end{tabular}
+\advance \fitchone by \fitchthree%
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\fitchprf} Typesets a fitch proof
+%    \begin{macrocode}
+\providecommand{\fitchprf}[2]{\advance \fitchone by -\fitchthree%
+\advance \fitchone by .5pt
+\hspace*{.35em}\begin{tabular}[t]{|p{0pt}@{}p{\fitchone}@{}l}
+ \multicolumn{3}{@{}l@{}}{\ }\\[-2.35ex]
+  #1 \\ 
+  \ \\[-2.5ex] \cline{1-1}\\[-2ex]
+  #2 \\ \multicolumn{3}{@{}l@{}} \ \\[-2.35ex]
+ \end{tabular}
+\advance \fitchone by \fitchthree%
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\fitcharg} Typesets an argument (without line numbers)
+%    \begin{macrocode}
+\providecommand{\fitcharg}[2]{\advance \fitchargone by -\fitchthree%
+\hspace*{.35em}
+\begin{tabular}[t]{|p{\fitchtwo}@{}p{\fitchargone}}
+ \multicolumn{2}{@{}l@{}}{\ }\\[-2.35ex]
+  #1 \\ 
+  \ \\[-2.5ex] \cline{1-1}\\[-2ex]
+  #2 \\ \multicolumn{2}{@{}l@{}} \ \\[-2.35ex]
+\end{tabular}
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\slider} Typesets the focus arrow.
+%    \begin{macrocode}
+\providecommand{\slider}{\mbox{$\triangleright \;$}}
+%    \end{macrocode}
+% \end{macro}
+% 
+% \begin{macro}{\pline} Typesets a proof line with an optional line number (before the 
+% formula argument) and an optional justification (after the formula argument)
+% E.g.  |\pline[5.]{Cube(a)}[\lande{6}]|
+%    \begin{macrocode}
+\def\pline{\@ifnextchar[\@plinenum{\@plinenum[\@empty]}} 
+\def\@plinenum[#1]#2{\@ifnextchar[{\@plinex{#1}{#2}}{\@plinex{#1}{#2}[\@empty]}} 
+\def\@plinex#1#2[#3]{ & #1\formula{\; #2} & #3} 
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\fpline} Like |pline| except producesa focus slider on the left
+%    \begin{macrocode}
+\def\fpline{\slider\pline} 
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\tline} Typesets proof line containing text wiht an optional 
+% line number.
+% E.g. |\tline[1.]{\formula{a} is a cube.}|
+%    \begin{macrocode}
+\providecommand{\tline}[2][{}]{ & #1\hspace{.6em}{#2}}
+%    \end{macrocode}
+% \end{macro}
+%
+% The following macros |nline|, |jline|, and |fline|
+% are the original commands provided in the original version
+% of |lplproof| and are included for backwards compatibility. 
+% E.g. |\nline[1.]{P}|
+%    \begin{macrocode}
+\providecommand{\nline}[2][{}]{ & #1\formula{\;#2}}
+%    \end{macrocode}
+% justified line (justification optional)
+% |\jline[justification]{args for line}|
+%    \begin{macrocode}
+\providecommand{\jline}[2][{}]{\nline#2 & #1}
+%    \end{macrocode}
+% focused line
+%    \begin{macrocode}
+\providecommand{\fline}[1]{\slider \jline#1}
+%    \end{macrocode}
+%
+% \begin{macro}{\ellipsesline}
+% Producing vertical ellipses in a line on their own.
+% This takes care of centering the ellipses in their line.
+%    \begin{macrocode}
+\providecommand{\ellipsesline}[0]{\nline{\;\raise.65ex\hbox{\vdots}}}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\subproof}
+% This command sets a subproof within a proof.
+% The arguments are the lines before, and the lines after
+% the horizontal fitch bar.
+%    \begin{macrocode}
+\providecommand{\subproof}[2]{&\fitchprf{#1}{#2}\\}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\boxedsubproof}
+% This produces a new boxed subproof.
+% |\boxedsubproof[n]{c}{premise}{body}|
+% Where n is the number of the premise line
+%       c is the constant(s) to be boxed
+%       premise is the premise of the subproof (a formula)
+%       body is the lines of the subproof.
+%    \begin{macrocode}
+\providecommand{\boxedsubproof}[4][{}]{
+     \subproof{\nline[#1]{\fbox{\formula{#2}}\;#3}}{#4}
+}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\brokenform}
+% Crude attempt at dealing with formula which need to be broken to fit
+% in the proof.  We take two arguments, the first line of the formula
+% which is left justified, and the remainder of the lines, which
+% are right justified.
+%    \begin{macrocode}
+\providecommand{\brokenform}[2]{
+   \advance\fitchone by-\fitchthree
+   \begin{tabular}[c]{rp{\fitchone}}
+    \multicolumn{1}{p{\fitchone}@{}}{\formula{#1}}\\
+    \formula{#2}
+   \end{tabular}
+   \advance\fitchone by\fitchthree
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \Finale
+\endinput
