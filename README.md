@@ -30,7 +30,7 @@ version 2005/12/01 or later.
 
 This work has the LPPL maintenance status `maintained'.
 
-The Current Maintainer of this work is RichardZach.
+The Current Maintainer of this work is Richard Zach.
 
 This work consists of the files lplfitch.dtx and lplfitch.ins
 and the derived files lplfitch.sty and lplfitch.pdf.
@@ -38,5 +38,5 @@ and the derived files lplfitch.sty and lplfitch.pdf.
 Versions
 --------
 
-1.0 (2013/05/07) Initial release
+0.9 (2013/05/16) First public beta
 
